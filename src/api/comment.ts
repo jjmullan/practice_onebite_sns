@@ -22,12 +22,21 @@ export async function fetchComments(postId: number) {
  * @param content 댓글의 상세 내용
  * @returns data
  */
-export async function createComment({ postId, content }: { postId: number; content: string }) {
+export async function createComment({
+  postId,
+  content,
+  parentCommentId,
+}: {
+  postId: number;
+  content: string;
+  parentCommentId?: number;
+}) {
   const { data, error } = await supabase
     .from("comment")
     .insert({
       post_id: postId,
       content: content,
+      parentCommentId: parentCommentId,
     })
     .select()
     .single();

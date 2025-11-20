@@ -41,3 +41,29 @@ export async function createComment({
   if (error) throw error;
   return data;
 }
+
+/**
+ * 특정 댓글의 내용을 수정하는 기능
+ * @param id 댓글 id
+ * @param content 댓글 내용
+ * @returns 수정된 댓글 정보
+ */
+export async function updateComment({
+  id,
+  content,
+}: {
+  id: number;
+  content: string;
+}) {
+  const { data, error } = await supabase
+    .from("comment")
+    .update({
+      content,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}

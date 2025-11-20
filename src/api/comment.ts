@@ -10,7 +10,7 @@ export async function fetchComments(postId: number) {
     .from("comment")
     .select("*, author: profile!author_id (*)")
     .eq("post_id", postId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (error) throw error;
   return data;
@@ -22,13 +22,7 @@ export async function fetchComments(postId: number) {
  * @param content 댓글의 상세 내용
  * @returns data
  */
-export async function createComment({
-  postId,
-  content,
-}: {
-  postId: number;
-  content: string;
-}) {
+export async function createComment({ postId, content }: { postId: number; content: string }) {
   const { data, error } = await supabase
     .from("comment")
     .insert({
@@ -48,13 +42,7 @@ export async function createComment({
  * @param content 댓글 내용
  * @returns 수정된 댓글 정보
  */
-export async function updateComment({
-  id,
-  content,
-}: {
-  id: number;
-  content: string;
-}) {
+export async function updateComment({ id, content }: { id: number; content: string }) {
   const { data, error } = await supabase
     .from("comment")
     .update({
@@ -74,12 +62,7 @@ export async function updateComment({
  * @returns 삭제된 댓글 정보
  */
 export async function deleteComment(id: number) {
-  const { data, error } = await supabase
-    .from("comment")
-    .delete()
-    .eq("id", id)
-    .select()
-    .single();
+  const { data, error } = await supabase.from("comment").delete().eq("id", id).select().single();
 
   if (error) throw error;
   return data;

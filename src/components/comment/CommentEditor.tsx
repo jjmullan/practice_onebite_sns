@@ -1,12 +1,43 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useCreateComment } from "@/hooks/mutations/comment/useCreateComment";
+import { toast } from "sonner";
 
-export default function CommentEditor() {
+export default function CommentEditor({ postId }: { postId: number }) {
+  const { mutate: createComment, isPending: isCreateCommentPending } =
+    useCreateComment({
+      onSuccess: () => {
+        setContent("");
+      },
+      onError: (error) => {
+        toast.error("댓글 작성이 실패했습니다.", {
+          position: "top-center",
+        });
+      },
+    });
+  const [content, setContent] = useState("");
+  const handleSubmitClick = () => {
+    if (content.trim() === "") return;
+
+    // 서버에 비동기로 데이터 요청
+    createComment({
+      postId,
+      content,
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2">
-      <Textarea />
+      <Textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        disabled={isCreateCommentPending}
+      />
       <div className="flex justify-end">
-        <Button>작성</Button>
+        <Button onClick={handleSubmitClick} disabled={isCreateCommentPending}>
+          작성
+        </Button>
       </div>
     </div>
   );

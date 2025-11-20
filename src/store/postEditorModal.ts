@@ -3,11 +3,11 @@ import { combine, devtools } from "zustand/middleware";
 
 type State = OpenState | CloseState;
 type OpenState = CreateMode | EditMode;
-type CreateMode = {
+export type CreateMode = {
   isOpen: true;
   type: "CREATE";
 };
-type EditMode = {
+export type EditMode = {
   isOpen: true;
   type: "EDIT";
   postId: number;
@@ -44,9 +44,7 @@ const usePostEditorModalStore = create(
 );
 
 export const useOpenCreatePostModal = () => {
-  const openCreate = usePostEditorModalStore(
-    (store) => store.actions.openCreate,
-  );
+  const openCreate = usePostEditorModalStore((store) => store.actions.openCreate);
   return openCreate;
 };
 

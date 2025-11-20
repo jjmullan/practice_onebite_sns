@@ -1,14 +1,10 @@
 import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useCreatePost } from "@/hooks/mutations/post/useCreatePost";
 import { useUpdatePost } from "@/hooks/mutations/post/useUpdatePost";
 import { useOpenAlertModal } from "@/store/alertModal";
-import { usePostEditorModal } from "@/store/postEditorModal";
+import { usePostEditorModal, type EditMode } from "@/store/postEditorModal";
 import { useSession } from "@/store/session";
 import { ImageIcon, XIcon } from "lucide-react";
 import React, { Activity, useEffect, useRef, useState } from "react";
@@ -42,9 +38,7 @@ function PostEditorModal() {
   };
 
   const handleDeleteImage = (image: Image) => {
-    setImages((prevImages) =>
-      prevImages.filter((item) => item.previewUrl !== image.previewUrl),
-    );
+    setImages((prevImages) => prevImages.filter((item) => item.previewUrl !== image.previewUrl));
 
     URL.revokeObjectURL(image.previewUrl);
   };
@@ -116,8 +110,7 @@ function PostEditorModal() {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height =
-        textareaRef.current.scrollHeight + "px";
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
     }
   }, [content]);
 
@@ -164,22 +157,13 @@ function PostEditorModal() {
           ref={fileInputRef}
           onChange={handleSelectImages}
         />
-        <Activity
-          mode={
-            postEditorModal.isOpen && postEditorModal.type === "EDIT"
-              ? "visible"
-              : "hidden"
-          }
-        >
+        <Activity mode={postEditorModal.isOpen && postEditorModal.type === "EDIT" ? "visible" : "hidden"}>
           <Carousel>
             <CarouselContent>
-              {postEditorModal.imageUrls?.map((url: string) => (
+              {(postEditorModal as EditMode).imageUrls?.map((url: string) => (
                 <CarouselItem key={url} className="basis-2/5">
                   <div className="relative">
-                    <img
-                      src={url}
-                      className="h-full w-full rounded-sm object-cover"
-                    />
+                    <img src={url} className="h-full w-full rounded-sm object-cover" />
                   </div>
                 </CarouselItem>
               ))}
@@ -209,13 +193,7 @@ function PostEditorModal() {
             </CarouselContent>
           </Carousel>
         </Activity>
-        <Activity
-          mode={
-            postEditorModal.isOpen && postEditorModal.type === "CREATE"
-              ? "visible"
-              : "hidden"
-          }
-        >
+        <Activity mode={postEditorModal.isOpen && postEditorModal.type === "CREATE" ? "visible" : "hidden"}>
           <Button
             variant={"outline"}
             className="cursor-pointer"
@@ -228,11 +206,7 @@ function PostEditorModal() {
             이미지 추가
           </Button>
         </Activity>
-        <Button
-          className="cursor-pointer"
-          onClick={handleSavePostClick}
-          disabled={isPending}
-        >
+        <Button className="cursor-pointer" onClick={handleSavePostClick} disabled={isPending}>
           저장
         </Button>
       </DialogContent>

@@ -5,6 +5,9 @@ import { formatTimeAgo } from "@/lib/time";
 import { useSession } from "@/store/session";
 import { Activity, useState } from "react";
 import CommentEditor from "@/components/comment/CommentEditor";
+import { useDeleteComment } from "@/hooks/mutations/comment/useDeleteComment";
+import { toast } from "sonner";
+import { useAlertModalStore, useOpenAlertModal } from "@/store/alertModal";
 
 export default function CommentItem(props: Comment) {
   const session = useSession();
@@ -15,26 +18,38 @@ export default function CommentItem(props: Comment) {
     setIsEditing(!isEditing);
   };
 
+  const { mutate: deleteComment, isPending: isDeleteCommentPending } = useDeleteComment({
+    onError: (error) => {
+      toast.error("댓글 삭제가 실패했습니다.", { position: "top-center" });
+    },
+  });
+  const openAlertModal = useAlertModalStore((store) => store.actions.open);
+  const closeModal = useAlertModalStore((store) => store.actions.close);
+  const handleDeleteClick = () => {
+    openAlertModal({
+      title: "댓글 삭제",
+      description: "삭제된 댓글은 되돌릴 수 없습니다. 정말 삭제하시겠습니까?",
+      onPositive: () => {
+        deleteComment(props.id);
+      },
+      onNegative: () => {
+        closeModal();
+      },
+    });
+  };
+
   return (
     <div className={"flex flex-col gap-8 border-b pb-5"}>
       <div className="flex items-start gap-4">
         <Link to={"#"}>
           <div className="flex h-full flex-col">
-            <img
-              className="h-10 w-10 rounded-full object-cover"
-              src={props.author.avatar_url || defaultAvatar}
-            />
+            <img className="h-10 w-10 rounded-full object-cover" src={props.author.avatar_url || defaultAvatar} />
           </div>
         </Link>
         <div className="flex w-full flex-col gap-2">
           <div className="font-bold">{props.author.nickname}</div>
           {isEditing ? (
-            <CommentEditor
-              type="EDIT"
-              commentId={props.id}
-              initialContent={props.content}
-              onClose={toggleIsEditing}
-            />
+            <CommentEditor type="EDIT" commentId={props.id} initialContent={props.content} onClose={toggleIsEditing} />
           ) : (
             <div>{props.content}</div>
           )}
@@ -47,14 +62,13 @@ export default function CommentItem(props: Comment) {
             {/* 수정, 삭제 버튼 */}
             <div className="flex items-center gap-2">
               <Activity mode={isMine ? "visible" : "hidden"}>
-                <div
-                  className="cursor-pointer hover:underline"
-                  onClick={toggleIsEditing}
-                >
+                <div className="cursor-pointer hover:underline" onClick={toggleIsEditing}>
                   수정
                 </div>
                 <div className="bg-border h-[13px] w-[2px]"></div>
-                <div className="cursor-pointer hover:underline">삭제</div>
+                <div className="cursor-pointer hover:underline" onClick={handleDeleteClick}>
+                  삭제
+                </div>
               </Activity>
             </div>
           </div>

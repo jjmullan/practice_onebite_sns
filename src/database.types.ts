@@ -16,6 +16,7 @@ export type Database = {
           id: number;
           parent_comment_id: number | null;
           post_id: number;
+          root_comment_id: number | null;
         };
         Insert: {
           author_id?: string;
@@ -24,6 +25,7 @@ export type Database = {
           id?: number;
           parent_comment_id?: number | null;
           post_id: number;
+          root_comment_id?: number | null;
         };
         Update: {
           author_id?: string;
@@ -32,6 +34,7 @@ export type Database = {
           id?: number;
           parent_comment_id?: number | null;
           post_id?: number;
+          root_comment_id?: number | null;
         };
         Relationships: [
           {
@@ -53,6 +56,13 @@ export type Database = {
             columns: ["post_id"];
             isOneToOne: false;
             referencedRelation: "post";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comment_root_comment_id_fkey";
+            columns: ["root_comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comment";
             referencedColumns: ["id"];
           },
         ];
@@ -203,7 +213,9 @@ export type Tables<
     : never;
 
 export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
@@ -226,7 +238,9 @@ export type TablesInsert<
     : never;
 
 export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }
@@ -249,7 +263,9 @@ export type TablesUpdate<
     : never;
 
 export type Enums<
-  DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals;
   }

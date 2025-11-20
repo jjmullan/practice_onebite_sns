@@ -67,3 +67,20 @@ export async function updateComment({
   if (error) throw error;
   return data;
 }
+
+/**
+ * 특정 댓글을 삭제하는 기능
+ * @param id 댓글 ID
+ * @returns 삭제된 댓글 정보
+ */
+export async function deleteComment(id: number) {
+  const { data, error } = await supabase
+    .from("comment")
+    .delete()
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}

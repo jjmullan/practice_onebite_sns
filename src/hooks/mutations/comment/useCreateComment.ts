@@ -1,12 +1,26 @@
 import { createComment } from "@/api/comment";
-import type { MutationCallback } from "@/types/types";
-import { useMutation } from "@tanstack/react-query";
+import { useProfileData } from "@/hooks/queries/useProfileData";
+import { QUERY_KEYS } from "@/lib/constants";
+import { useSession } from "@/store/session";
+import type { Comment, MutationCallback } from "@/types/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useCreateComment(callbacks: MutationCallback) {
+  const queryClient = useQueryClient();
+  const session = useSession();
+  const { data: profile } = useProfileData(session?.user.id);
+
   return useMutation({
     mutationFn: createComment,
-    onSuccess: () => {
+    onSuccess: (newComment) => {
       if (callbacks.onSuccess) callbacks.onSuccess();
+
+      queryClient.setQueryData<Comment[]>(QUERY_KEYS.comment.post(newComment.post_id), (comments) => {
+        if (!comments) throw new Error("댓글이 캐시 데이터에 보관되어 있지 않습니다.");
+        if (!profile) throw new Error("사용자의 프로필 정보를 찾을 수 없습니다.");
+
+        return [{ ...newComment, author: profile }, ...comments];
+      });
     },
     onError: (error) => {
       if (callbacks.onError) callbacks.onError(error);

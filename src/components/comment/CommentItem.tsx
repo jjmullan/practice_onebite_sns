@@ -1,15 +1,15 @@
 import { Link } from "react-router";
 import defaultAvatar from "@/assets/default-avatar.jpg";
-import type { Comment } from "@/types/types";
+import type { NestedComment } from "@/types/types";
 import { formatTimeAgo } from "@/lib/time";
 import { useSession } from "@/store/session";
 import { Activity, useState } from "react";
 import CommentEditor from "@/components/comment/CommentEditor";
 import { useDeleteComment } from "@/hooks/mutations/comment/useDeleteComment";
 import { toast } from "sonner";
-import { useAlertModalStore, useOpenAlertModal } from "@/store/alertModal";
+import { useAlertModalStore } from "@/store/alertModal";
 
-export default function CommentItem(props: Comment) {
+export default function CommentItem(props: NestedComment) {
   const session = useSession();
   const isMine = session?.user.id === props.author_id;
 
@@ -38,24 +38,41 @@ export default function CommentItem(props: Comment) {
     });
   };
 
+  // 대댓글 기능
+  const [isReply, setIsReply] = useState(false);
+  const toggleIsReply = () => {
+    setIsReply(!isReply);
+  };
+  const isRootComment = props.parentComment === undefined;
+
   return (
-    <div className={"flex flex-col gap-8 border-b pb-5"}>
+    <div className={`flex flex-col gap-8 ${isRootComment ? "border-b" : "ml-6"} pb-5`}>
       <div className="flex items-start gap-4">
         <Link to={"#"}>
           <div className="flex h-full flex-col">
-            <img className="h-10 w-10 rounded-full object-cover" src={props.author.avatar_url || defaultAvatar} />
+            <img
+              className="h-10 w-10 rounded-full object-cover"
+              src={props.author.avatar_url || defaultAvatar}
+            />
           </div>
         </Link>
         <div className="flex w-full flex-col gap-2">
           <div className="font-bold">{props.author.nickname}</div>
           {isEditing ? (
-            <CommentEditor type="EDIT" commentId={props.id} initialContent={props.content} onClose={toggleIsEditing} />
+            <CommentEditor
+              type="EDIT"
+              commentId={props.id}
+              initialContent={props.content}
+              onClose={toggleIsEditing}
+            />
           ) : (
             <div>{props.content}</div>
           )}
           <div className="text-muted-foreground flex justify-between text-sm">
             <div className="flex items-center gap-2">
-              <div className="cursor-pointer hover:underline">댓글</div>
+              <div className="cursor-pointer hover:underline" onClick={toggleIsReply}>
+                댓글
+              </div>
               <div className="bg-border h-[13px] w-[2px]"></div>
               <div>{formatTimeAgo(props.created_at)}</div>
             </div>
@@ -74,6 +91,17 @@ export default function CommentItem(props: Comment) {
           </div>
         </div>
       </div>
+      {isReply && (
+        <CommentEditor
+          type="REPLY"
+          postId={props.post_id}
+          parentCommentId={props.id}
+          onClose={toggleIsReply}
+        />
+      )}
+      {props.children.map((comment) => (
+        <CommentItem key={comment.id} {...comment} />
+      ))}
     </div>
   );
 }

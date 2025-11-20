@@ -36,7 +36,7 @@ export async function createComment({
     .insert({
       post_id: postId,
       content: content,
-      parentCommentId: parentCommentId,
+      parent_comment_id: parentCommentId,
     })
     .select()
     .single();

@@ -17,32 +17,38 @@ type EditMode = {
   onClose(): void;
 };
 
-type Props = CreateMode | EditMode;
+type ReplyMode = {
+  type: "REPLY";
+  postId: number;
+  parentCommentId: number;
+  onClose(): void;
+};
+
+type Props = CreateMode | EditMode | ReplyMode;
 
 export default function CommentEditor(props: Props) {
   // 비동기 데이터 전송
-  const { mutate: createComment, isPending: isCreateCommentPending } =
-    useCreateComment({
-      onSuccess: () => {
-        setContent("");
-      },
-      onError: (error) => {
-        toast.error("댓글 작성이 실패했습니다.", {
-          position: "top-center",
-        });
-      },
-    });
-  const { mutate: updateComment, isPending: isUpdateCommentPending } =
-    useUpdateComment({
-      onSuccess: () => {
-        (props as EditMode).onClose();
-      },
-      onError: (error) => {
-        toast.error("댓글 수정이 실패했습니다.", {
-          position: "top-center",
-        });
-      },
-    });
+  const { mutate: createComment, isPending: isCreateCommentPending } = useCreateComment({
+    onSuccess: () => {
+      setContent("");
+      if (props.type === "REPLY") props.onClose();
+    },
+    onError: (error) => {
+      toast.error("댓글 작성이 실패했습니다.", {
+        position: "top-center",
+      });
+    },
+  });
+  const { mutate: updateComment, isPending: isUpdateCommentPending } = useUpdateComment({
+    onSuccess: () => {
+      (props as EditMode).onClose();
+    },
+    onError: (error) => {
+      toast.error("댓글 수정이 실패했습니다.", {
+        position: "top-center",
+      });
+    },
+  });
 
   const [content, setContent] = useState("");
   const handleSubmitClick = () => {
@@ -54,10 +60,16 @@ export default function CommentEditor(props: Props) {
         postId: props.postId,
         content,
       });
-    } else {
+    } else if (props.type === "EDIT") {
       updateComment({
         id: props.commentId,
         content,
+      });
+    } else if (props.type === "REPLY") {
+      createComment({
+        postId: props.postId,
+        content,
+        parentCommentId: props.parentCommentId,
       });
     }
   };
@@ -72,13 +84,9 @@ export default function CommentEditor(props: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        disabled={isPending}
-      />
+      <Textarea value={content} onChange={(e) => setContent(e.target.value)} disabled={isPending} />
       <div className="flex justify-end gap-2">
-        <Activity mode={props.type === "EDIT" ? "visible" : "hidden"}>
+        <Activity mode={props.type === "EDIT" || props.type === "REPLY" ? "visible" : "hidden"}>
           <Button
             variant={"outline"}
             onClick={() => (props as EditMode).onClose()}

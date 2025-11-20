@@ -1,5 +1,4 @@
-import { HeartIcon, MessageCircle } from "lucide-react";
-import type { Post } from "@/types/types";
+import { MessageCircle } from "lucide-react";
 import defaultAvatar from "@/assets/default-avatar.jpg";
 import {
   Carousel,
@@ -17,15 +16,17 @@ import Fallback from "@/components/Fallback";
 import LikePostButton from "@/components/post/LikePostButton";
 import { Link } from "react-router";
 
-export default function PostItem({ postId }: { postId: number }) {
+export default function PostItem({
+  postId,
+  type,
+}: {
+  postId: number;
+  type: "FEED" | "DETAIL";
+}) {
   const session = useSession();
   const userId = session?.user.id;
 
-  const {
-    data: post,
-    isPending,
-    error,
-  } = usePostByIdData({ postId, type: "FEED" });
+  const { data: post, isPending, error } = usePostByIdData({ postId, type });
 
   const isMine = post?.author_id === userId;
 
@@ -33,7 +34,9 @@ export default function PostItem({ postId }: { postId: number }) {
   if (error) return <Fallback />;
 
   return (
-    <div className="flex flex-col gap-4 border-b pb-8">
+    <div
+      className={`flex flex-col gap-4 ${type === "FEED" && "border-b"} pb-8`}
+    >
       {/* 1. 유저 정보, 수정/삭제 버튼 */}
       <div className="flex justify-between">
         {/* 1-1. 유저 정보 */}
@@ -67,9 +70,17 @@ export default function PostItem({ postId }: { postId: number }) {
       {/* 2. 컨텐츠, 이미지 캐러셀 */}
       <div className="flex cursor-pointer flex-col gap-5">
         {/* 2-1. 컨텐츠 */}
-        <div className="line-clamp-2 wrap-break-word whitespace-pre-wrap">
-          {post.content}
-        </div>
+        {type === "FEED" ? (
+          <Link to={`/post/${post.id}`}>
+            <div className="line-clamp-2 wrap-break-word whitespace-pre-wrap">
+              {post.content}
+            </div>
+          </Link>
+        ) : (
+          <div className="wrap-break-word whitespace-pre-wrap">
+            {post.content}
+          </div>
+        )}
 
         {/* 2-2. 이미지 캐러셀 */}
         <Carousel>
@@ -98,10 +109,14 @@ export default function PostItem({ postId }: { postId: number }) {
         />
 
         {/* 3-2. 댓글 버튼 */}
-        <div className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-xl border p-2 px-4 text-sm">
-          <MessageCircle className="h-4 w-4" />
-          <span>댓글 달기</span>
-        </div>
+        {type === "FEED" && (
+          <Link to={`/post/${post.id}`}>
+            <div className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-xl border p-2 px-4 text-sm">
+              <MessageCircle className="h-4 w-4" />
+              <span>댓글 달기</span>
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -27,7 +27,9 @@ function PostFeed({ authorId }: { authorId?: string }) {
   return (
     <div className="flex flex-col gap-10">
       {data.pages.map((page) =>
-        page.map((postId) => <PostItem key={postId} postId={postId} />),
+        page.map((postId) => (
+          <PostItem key={postId} postId={postId} type="FEED" />
+        )),
       )}
       {isFetchNextPageError && <Loader />}
       {/* 무한스크롤 구현 1. 빈 div 태그 생성 */}

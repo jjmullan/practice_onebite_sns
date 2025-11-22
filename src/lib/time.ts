@@ -18,5 +18,8 @@ export function formatTimeAgo(time: Date | string | number) {
   const dayDiff = Math.floor(hourDiff / 24);
   if (dayDiff < 3) return `${dayDiff}일 전`;
 
-  return new Date(time).toLocaleString();
+  return new Date(time).toLocaleString("ko-KR", {
+    dateStyle: "full",
+    timeStyle: "short",
+  });
 }

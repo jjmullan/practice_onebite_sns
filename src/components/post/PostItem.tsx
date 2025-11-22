@@ -1,10 +1,6 @@
 import { MessageCircle } from "lucide-react";
 import defaultAvatar from "@/assets/default-avatar.jpg";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { formatTimeAgo } from "@/lib/time";
 import EditPostButton from "@/components/post/EditPostButton";
 import DeletePostButton from "@/components/post/DeletePostButton";
@@ -16,13 +12,7 @@ import Fallback from "@/components/Fallback";
 import LikePostButton from "@/components/post/LikePostButton";
 import { Link } from "react-router";
 
-export default function PostItem({
-  postId,
-  type,
-}: {
-  postId: number;
-  type: "FEED" | "DETAIL";
-}) {
+export default function PostItem({ postId, type }: { postId: number; type: "FEED" | "DETAIL" }) {
   const session = useSession();
   const userId = session?.user.id;
 
@@ -34,9 +24,7 @@ export default function PostItem({
   if (error) return <Fallback />;
 
   return (
-    <div
-      className={`flex flex-col gap-4 ${type === "FEED" && "border-b"} pb-8`}
-    >
+    <div className={`flex flex-col gap-4 ${type === "FEED" && "border-b"} pb-8`}>
       {/* 1. 유저 정보, 수정/삭제 버튼 */}
       <div className="flex justify-between">
         {/* 1-1. 유저 정보 */}
@@ -49,12 +37,8 @@ export default function PostItem({
             />
           </Link>
           <div>
-            <div className="font-bold hover:underline">
-              {post.author.nickname}
-            </div>
-            <div className="text-muted-foreground text-sm">
-              {formatTimeAgo(post.created_at)}
-            </div>
+            <div className="font-bold hover:underline">{post.author.nickname}</div>
+            <div className="text-muted-foreground text-sm">{formatTimeAgo(post.created_at)}</div>
           </div>
         </div>
 
@@ -72,14 +56,10 @@ export default function PostItem({
         {/* 2-1. 컨텐츠 */}
         {type === "FEED" ? (
           <Link to={`/post/${post.id}`}>
-            <div className="line-clamp-2 wrap-break-word whitespace-pre-wrap">
-              {post.content}
-            </div>
+            <div className="line-clamp-2 wrap-break-word whitespace-pre-wrap">{post.content}</div>
           </Link>
         ) : (
-          <div className="wrap-break-word whitespace-pre-wrap">
-            {post.content}
-          </div>
+          <div className="wrap-break-word whitespace-pre-wrap">{post.content}</div>
         )}
 
         {/* 2-2. 이미지 캐러셀 */}
@@ -88,10 +68,7 @@ export default function PostItem({
             {post.image_urls?.map((url, index) => (
               <CarouselItem className={`basis-3/5`} key={index}>
                 <div className="overflow-hidden rounded-xl">
-                  <img
-                    src={url}
-                    className="h-full max-h-[350px] w-full object-cover"
-                  />
+                  <img src={url} className="h-full max-h-[350px] w-full object-cover" />
                 </div>
               </CarouselItem>
             ))}
@@ -102,11 +79,7 @@ export default function PostItem({
       {/* 3. 좋아요, 댓글 버튼 */}
       <div className="flex gap-2">
         {/* 3-1. 좋아요 버튼 */}
-        <LikePostButton
-          id={post.id}
-          likeCount={post.like_count}
-          isLiked={post.isLiked}
-        />
+        <LikePostButton id={post.id} likeCount={post.like_count} isLiked={post.isLiked} />
 
         {/* 3-2. 댓글 버튼 */}
         {type === "FEED" && (

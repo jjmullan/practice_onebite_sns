@@ -16,3 +16,5 @@ export type MutationCallback = {
   onError?(error: Error): void;
   onSettled?(): void;
 };
+
+export type Theme = "system" | "dark" | "light";
